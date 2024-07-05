@@ -1,0 +1,52 @@
+Coding for Nodemcu in Arduino IDE:
+
+#define BLYNK_TEMPLATE_ID "TMPL306AT3Fhq"
+#define BLYNK_TEMPLATE_NAME "Smart Motion Detector"
+#define BLYNK_AUTH_TOKEN "6S6wAQKHMmB6Jh6v5q_QeJiW371mfvpw"
+#define BLYNK_PRINT Serial
+char auth[] = BLYNK_AUTH_TOKEN;
+
+char ssid[] = "Tarun";
+char pass[] ="12345678";
+int sensorPin = 5;
+#include <BlynkSimpleEsp8266.h>
+
+int sensorData;
+bool notificationSent = false;
+
+BlynkTimer timer;
+
+void timeEvent()
+{
+    sensorData = digitalRead(sensorPin);
+    if (sensorData == HIGH && !notificationSent)
+    {
+        Blynk.logEvent("Motion detected!"); // Send a notification to the Blynk app
+        notificationSent = true;
+    }
+}
+
+void checkSensor()
+{
+    if (notificationSent)
+    {
+        notificationSent = false;
+    }
+}
+
+void setup()
+{
+    // Initialize the Serial communication
+    Serial.begin(115200);
+
+    Blynk.begin(auth, ssid, pass);
+
+    // Setup a timer to check for motion periodically
+    timer.setInterval(1000L, timeEvent);
+}
+
+void loop()
+{    
+    Blynk.run();
+  timer.run();
+}
